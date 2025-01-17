@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Allocation</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a2e;
+            color: #e4e4e4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #16213e;
+            color: #fff;
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 4px solid #0f3460;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 3rem auto;
+            background: #0f3460;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        form {
+            margin-bottom: 2.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #ffcccb;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #fff;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #e43f5a;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #e43f5a;
+            margin: 0.8rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #f9f9f9;
+            color: #fff;
+        }
+
+        .section {
+            margin-top: 3rem;
+        }
+
+        h2 {
+            color: #e4e4e4;
+            border-bottom: 2px solid #ff4c4c;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Resource Allocation</h1>
+    </header>
+
+    <div class="container">
+        <h2>Add New Resource</h2>
+        <form id="resourceForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter resource name" required>
+
+            <label for="skills">Skills:</label>
+            <input type="text" id="skills" name="skills" placeholder="E.g., Java, MySQL, Javascript" required>
+
+            <label for="experience">Experience:</label>
+            <input type="number" id="experience" name="experience" placeholder="Enter experience in years" required>
+
+            <button type="submit">Add Resource</button>
+        </form>
+
+        <div class="section">
+            <h2>All Resources</h2>
+            <button onclick="fetchAllResources()">View All Resources</button>
+            <ul id="allResources"></ul>
+        </div>
+
+        <div class="section">
+            <h2>Resources for Microservice Project</h2>
+            <button onclick="fetchMicroserviceResources()">View Microservice Resources</button>
+            <ul id="microserviceResources"></ul>
+        </div>
+
+        <div class="section">
+            <h2>Resources for Cloud Project</h2>
+            <button onclick="fetchCloudResources()">View Cloud Project Resources</button>
+            <ul id="cloudResources"></ul>
+        </div>
+    </div>
+
+    <script>
+        const apiBase = "http://localhost:8080/api/resources";
+
+        document.getElementById("resourceForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const resource = {
+                name: document.getElementById("name").value,
+                skills: document.getElementById("skills").value,
+                experience: document.getElementById("experience").value
+            };
+
+            const response = await fetch(`${apiBase}/add`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(resource)
+            });
+
+            if (response.ok) {
+                alert("Resource added successfully!");
+                document.getElementById("resourceForm").reset();
+                fetchAllResources();
+            } else {
+                alert("Failed to add resource. Please try again.");
+            }
+        });
+
+        async function fetchAllResources() {
+            const response = await fetch(`${apiBase}/all`);
+            const resources = await response.json();
+            const list = document.getElementById("allResources");
+            list.innerHTML = resources.map(resource => 
+                `<li>${resource.name} - ${resource.experience} years - ${resource.skills}</li>`
+            ).join('');
+        }
+
+        async function fetchMicroserviceResources() {
+            const response = await fetch(`${apiBase}/microservice`);
+            const resources = await response.json();
+            const list = document.getElementById("microserviceResources");
+            list.innerHTML = resources.map(name => `<li>${name}</li>`).join('');
+        }
+
+        async function fetchCloudResources() {
+            const response = await fetch(`${apiBase}/cloud`);
+            const resources = await response.json();
+            const list = document.getElementById("cloudResources");
+            list.innerHTML = resources.map(name => `<li>${name}</li>`).join('');
+        }
+    </script>
+</body>
+</html>
